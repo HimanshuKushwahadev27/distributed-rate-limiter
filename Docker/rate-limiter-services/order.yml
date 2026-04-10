@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  order:
+    build:
+      context: ../..
+      dockerfile: order/Dockerfile
+    container_name: rate-limiter-order
+    restart: on-failure
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/order_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/Astracore/protocol/openid-connect/certs
+    ports:
+      - "8082:8080"
+    networks:
+      - Astracore-net
+
+networks:
+  Astracore-net:
+    external: true
