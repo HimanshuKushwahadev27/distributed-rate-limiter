@@ -1,6 +1,5 @@
 package com.emi.infracore.cache;
 
-import com.emi.infracore.util.KeyBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -13,7 +12,6 @@ import java.util.function.Supplier;
 public class RedisCacheStore implements  CacheStore{
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final KeyBuilder keyBuilder;
 
     @Override
     public void put(String key, Object value, long ttlSeconds) {

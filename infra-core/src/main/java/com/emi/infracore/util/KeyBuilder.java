@@ -13,7 +13,7 @@ public class KeyBuilder {
 
     // ---------------- STOCK ----------------
 
-    public  String stockKey(String productId) {
+    public   String stockKey(String productId) {
         return String.join(SEPARATOR, "stock", productId);
     }
 
