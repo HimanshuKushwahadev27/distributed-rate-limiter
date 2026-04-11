@@ -2,6 +2,7 @@ package com.emi.order.service;
 
 import com.emi.infracore.util.KeyBuilder;
 import com.emi.order.Dto.RequestInventory;
+import com.emi.order.Dto.ResponseInventory;
 import com.emi.order.Dto.UpdateRequestDto;
 import com.emi.order.entity.Inventory;
 import com.emi.order.repository.InventoryRepository;
@@ -10,7 +11,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import com.emi.infracore.idempotency.IdempotencyStore;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -64,4 +67,16 @@ public class InventoryService {
         );
     }
 
+    public List<ResponseInventory> getInventory(){
+
+        
+
+        return inventoryRepository.findAll().stream().map(inventory -> new ResponseInventory(
+                inventory.getId(),
+                inventory.getQuantity(),
+                inventory.getSkuCode()
+        )).collect(Collectors.toList());
+    }
+
 }
+

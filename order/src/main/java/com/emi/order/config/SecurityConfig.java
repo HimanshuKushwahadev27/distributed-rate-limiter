@@ -10,13 +10,15 @@ public class SecurityConfig {
 
   @Bean
   SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-     return http
-        .csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(auth -> auth
-          .anyRequest()
-          .permitAll())
-        .build()
-        ;
+		return http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/public/**").permitAll()
+                    .anyRequest().authenticated()
+			)
+			.oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(new KeycloakJwtConverter())))
+			.build()
+			;
   }
 
 }

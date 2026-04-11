@@ -21,8 +21,9 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/create")
-    public ResponseEntity<String> createOrder(@RequestBody RequestOrder requestOrder,
-    @RequestHeader("Idempotenct-key") UUID requestId
+    public ResponseEntity<String> createOrder(
+        @RequestBody RequestOrder requestOrder,
+    @RequestHeader("Idempotency-Key") UUID requestId
     ){
         orderService.createOrder(requestOrder, requestId);
         return ResponseEntity.ok("Order created successfully");
