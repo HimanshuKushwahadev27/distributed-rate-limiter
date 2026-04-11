@@ -14,6 +14,7 @@
     <modules>
         <module>api-gateway</module>
         <module>infra-core</module>
+        <module>order</module>
     </modules>
 
     <properties>

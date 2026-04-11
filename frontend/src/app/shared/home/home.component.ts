@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonService, responseInv } from '../../features/common.service';
 import { AuthService } from '../../core/auth/service/auth.service';
 import { MatCardModule } from '@angular/material/card';
@@ -25,7 +25,7 @@ export class HomeComponent implements OnInit {
   public commonService = inject(CommonService);
   public authService = inject(AuthService);
   inventoryList: responseInv[] = [];
-
+  private cdr = inject(ChangeDetectorRef);
   isLoggedIn = false;
 
   ngOnInit() {
@@ -34,6 +34,7 @@ export class HomeComponent implements OnInit {
       if (this.isLoggedIn) {
         this.commonService.getInventory().subscribe(res => {
           this.inventoryList = res;
+          this.cdr.detectChanges();
         });
       }
   }

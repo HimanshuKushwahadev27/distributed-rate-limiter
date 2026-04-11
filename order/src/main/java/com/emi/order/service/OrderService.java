@@ -32,6 +32,7 @@ public class OrderService{
         }
 
         boolean success = stockStore.reduceStock(
+
                 requestOrder.skuCode(),
                 requestOrder.quantity()
         );

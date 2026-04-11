@@ -2,7 +2,8 @@ package com.emi.infracore.stock;
 
 import com.emi.infracore.util.KeyBuilder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
+
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
@@ -12,20 +13,20 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RedisStockStore implements StockStore {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final StringRedisTemplate redisTemplate;
     private final KeyBuilder keyBuilder;
     private final DefaultRedisScript<Long> stockScript = createStockScript();
 
     private static DefaultRedisScript<Long> createStockScript(){
         DefaultRedisScript<Long> script = new DefaultRedisScript<>();
         script.setScriptText(
-                "local stock = tonumber(redis.call('GET', KEYS[1]))" +
-                        "local qty = tonumber(ARGV[1])" +
-
-                        "if stock >= qty then" +
-                        "  return redis.call('DECRBY', KEYS[1], qty)" +
-                        "else" +
-                        "    return -1" +
+                        "local stock = tonumber(redis.call('GET', KEYS[1]))\n" +
+                        "local qty = tonumber(ARGV[1])\n" +
+                        "if stock == nil then return -1 end\n" + 
+                        "if stock >= qty then\n" +
+                        "  return redis.call('DECRBY', KEYS[1], qty)\n" +
+                        "else\n" +
+                        "  return -1\n" +
                         "end"
         );
         script.setResultType(Long.class);

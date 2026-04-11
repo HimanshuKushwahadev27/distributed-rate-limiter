@@ -7,7 +7,10 @@ import com.emi.order.Dto.UpdateRequestDto;
 import com.emi.order.entity.Inventory;
 import com.emi.order.repository.InventoryRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import com.emi.infracore.idempotency.IdempotencyStore;
 
@@ -15,19 +18,21 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InventoryService {
 
     private final KeyBuilder keyBuilder;
     private final InventoryRepository inventoryRepository;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final StringRedisTemplate redisTemplate;
     private final IdempotencyStore  idempotencyStore;
 
     public void createInventory(RequestInventory request, UUID requestId){
         
-        if(idempotencyStore.isFirstRequest(requestId.toString())){
-            throw new RuntimeException("Duplicate request");
+        if(!idempotencyStore.isFirstRequest(requestId.toString())){
+          log.info("Duplicate request: {}", requestId);
+          return;
         }
 
         if(inventoryRepository.existsBySkuCode(request.skuCode())){
@@ -41,7 +46,7 @@ public class InventoryService {
 
         redisTemplate.opsForValue().set(
                 keyBuilder.stockKey(request.skuCode()),
-                request.quantity()
+                String.valueOf(request.quantity())
         );
 
     }
@@ -49,7 +54,8 @@ public class InventoryService {
     public void updateInventory(UpdateRequestDto request, UUID requestId
     ){
         
-        if(idempotencyStore.isFirstRequest(requestId.toString())){
+        if(!idempotencyStore.isFirstRequest(requestId.toString())){
+            log.info("Duplicate request: {}", requestId);
             throw new RuntimeException("Duplicate request");
         }
 
@@ -63,7 +69,7 @@ public class InventoryService {
 
         redisTemplate.opsForValue().set(
                 keyBuilder.stockKey(request.skuCode()),
-                request.quantity()
+                String.valueOf(request.quantity())
         );
     }
 
