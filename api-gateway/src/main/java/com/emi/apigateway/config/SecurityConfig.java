@@ -2,6 +2,7 @@ package com.emi.apigateway.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -18,22 +19,21 @@ public class SecurityConfig {
 			"/swagger-resources/**",
 			"/api-docs/**",
 			"/aggregate/**",
-      "/api/**"
 	};
 	
     @Bean
     SecurityWebFilterChain  securityWebFilterChain(ServerHttpSecurity  http) {
 
         return http
-                .cors(Customizer.withDefaults())
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
+                    .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
                 	.pathMatchers(WHITELIST).permitAll()
                     .anyExchange().authenticated()
-                    
                 )
+                .cors((Customizer.withDefaults()))
                 .oauth2ResourceServer(oauth2 ->
-                    oauth2.jwt(Customizer.withDefaults())
+                    oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(new ReactiveJwtAuthConverter()))
                 )
                 .build();
     }

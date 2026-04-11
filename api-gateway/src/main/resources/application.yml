@@ -13,10 +13,10 @@ spring:
         webflux:
           routes:
 
-            - id: order-service
-              uri: http://order-service:8080
+            - id: order
+              uri: http://order:8080
               predicates:
-                - Path=/api/orders/**
+                - Path=/api/**
 
           globalcors:
             cors-configurations:
