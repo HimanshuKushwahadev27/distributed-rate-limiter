@@ -1,15 +1,15 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  {path:'',
+  {path:'home',
    loadComponent: () => (import('./shared/home/home.component'))
       .then(m => m.HomeComponent)
   },
-  {path:'',
+  {path:'inventory/create',
    loadComponent: () => (import('./features/inventory/inventory.component'))
       .then(m => m.InventoryComponent)
   },
-  {path:'',
+  {path:'order/create',
    loadComponent: () => (import('./features/order/order.component'))
       .then(m => m.OrderComponent)
   }

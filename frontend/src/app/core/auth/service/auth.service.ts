@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { authConfig } from '../auth.config';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -8,14 +9,15 @@ import { authConfig } from '../auth.config';
 export class AuthService {
 
     private oauthService = inject(OAuthService);
-
-
+    private router = inject(Router);
     initLogin() {
       this.oauthService.configure(authConfig);
       this.oauthService.setupAutomaticSilentRefresh();
       this.oauthService.loadDiscoveryDocumentAndTryLogin().then(() => {
         if (!this.oauthService.hasValidAccessToken()) {
           this.login();
+        }else{
+          this.router.navigate(['/home']);
         }
       });
     }
@@ -29,8 +31,8 @@ export class AuthService {
         this.oauthService.logOut();
     }
 
-    isLoggedIn(): boolean {
-        return this.oauthService.hasValidAccessToken();
+    isLoggedIn(): Promise<boolean> {
+      return Promise.resolve(this.oauthService.hasValidAccessToken());
     }
 
     getToken(): string | null {

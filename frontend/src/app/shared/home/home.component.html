@@ -1,1 +1,60 @@
-<p>home works!</p>
+<mat-card class="inventory-card">
+  <mat-card-title>Inventory List</mat-card-title>
+
+  <mat-list>
+    @if (isLoggedIn) {
+
+      @for (item of inventoryList; track item.id) {
+        <mat-list-item>
+          <div class="item-container">
+
+            <div class="item-row">
+              <span class="label">ID:</span>
+              <span class="value">{{ item.id }}</span>
+            </div>
+
+            <div class="item-row">
+              <span class="label">SKU Code:</span>
+              <span class="value">{{ item.skuCode }}</span>
+            </div>
+
+            <div class="item-row">
+              <span class="label">Quantity:</span>
+              <span class="value">{{ item.quantity }}</span>
+            </div>
+
+          </div>
+        </mat-list-item>
+
+        <mat-divider></mat-divider>
+      }
+
+    } @else {
+
+      <mat-list-item>
+        <span class="not-logged-in">Please log in to view inventory.</span>
+      </mat-list-item>
+    <button mat-fab color="primary" class="fab-btn" (click)="login()">
+        <mat-icon>login</mat-icon>
+    </button>
+    }
+  </mat-list>
+</mat-card>
+
+@if (isLoggedIn) {
+  <div class="btn-container">
+    <button mat-fab color="primary" class="fab-btn" [routerLink]="['/inventory/create']">
+      <mat-icon>add</mat-icon>
+    </button>
+    <button mat-fab color="primary" class="fab-btn" [routerLink]="['/order/create']">
+      <mat-icon>inventory</mat-icon>
+    </button>
+
+    <button mat-fab color="primary" class="fab-btn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+    </button>
+  </div>
+
+} 
+
+

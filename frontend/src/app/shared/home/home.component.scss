@@ -1,0 +1,83 @@
+.inventory-card {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 20px;
+  border-radius: 16px;
+}
+
+/* Title */
+mat-card-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* List spacing */
+mat-list {
+  padding: 0;
+}
+
+/* Each item container */
+.item-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 0;
+}
+
+/* Row styling */
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+/* Labels */
+.label {
+  font-weight: 500;
+  color: #666;
+}
+
+/* Values */
+.value {
+  font-weight: 600;
+  color: #222;
+}
+
+/* Divider spacing */
+mat-divider {
+  margin: 8px 0;
+}
+
+/* Not logged in message */
+.not-logged-in {
+  display: block;
+  text-align: center;
+  width: 100%;
+  font-size: 15px;
+  color: #888;
+  margin: 10px 0;
+}
+
+/* Floating buttons container */
+.btn-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* FAB buttons */
+.fab-btn {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Login button (inside card) */
+button[mat-fab] {
+  display: block;
+  margin: 16px auto 0;
+}
