@@ -8,6 +8,8 @@ services:
     container_name: rate-limiter-api-gateway
     restart: on-failure
     environment:
+      SPRING_DATA_REDIS_HOST: redis-server
+      SPRING_DATA_REDIS_PORT: 6379
       SPRING_APPLICATION_NAME: api-gateway
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/Astracore/protocol/openid-connect/certs
     ports:
