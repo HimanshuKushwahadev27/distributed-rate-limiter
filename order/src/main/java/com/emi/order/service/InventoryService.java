@@ -6,10 +6,8 @@ import com.emi.order.Dto.ResponseInventory;
 import com.emi.order.Dto.UpdateRequestDto;
 import com.emi.order.entity.Inventory;
 import com.emi.order.repository.InventoryRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.data.redis.core.RedisTemplate;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import com.emi.infracore.idempotency.IdempotencyStore;
@@ -27,6 +25,8 @@ public class InventoryService {
     private final InventoryRepository inventoryRepository;
     private final StringRedisTemplate redisTemplate;
     private final IdempotencyStore  idempotencyStore;
+
+
 
     public void createInventory(RequestInventory request, UUID requestId){
         

@@ -1,8 +1,5 @@
 package com.emi.infracore.util;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class KeyBuilder {
     private static final String SEPARATOR = ":" ;
 

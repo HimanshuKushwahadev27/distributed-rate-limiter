@@ -7,6 +7,7 @@ import com.emi.order.entity.Inventory;
 import com.emi.order.entity.Order;
 import com.emi.order.repository.InventoryRepository;
 import com.emi.order.repository.OrderRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,10 +20,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class OrderService{
 
-    private final OrderRepository orderRepository;
+    private final  OrderRepository orderRepository;
     private final StockStore stockStore;
     private final IdempotencyStore idempotencyStore;
     private final InventoryRepository inventoryRepository;
+
 
     public void createOrder(RequestOrder requestOrder, UUID requestId){
         

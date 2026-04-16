@@ -51,14 +51,18 @@
 ```
 root/
 ├── api-gateway/                  # Spring Cloud API Gateway
-├── infra-core/                   # Shared infrastructure library
-│   └── src/main/java/com/emi/infrac/
+├── infra-core/                   # Pure Java infrastructure library (framework-agnostic)
+│   └── src/main/java/com/emi/infracore/
 │       ├── cache/                # Redis cache abstraction
-│       ├── config/               # Redis + Bean configuration
 │       ├── idempotency/          # Idempotency enforcement
 │       ├── ratelimiter/          # Sliding window / token bucket rate limiting
 │       ├── stock/                # Atomic stock ops via Lua scripts
+│       ├── factory/              # InfraCoreFactory (instantiation without Spring)
 │       └── util/                 # KeyBuilder + shared helpers
+├── infra-spring-boot/            # Optional Spring Boot auto-configuration layer
+│   └── src/main/java/com/emi/infracore/spring/
+│       ├── InfraCoreAutoConfiguration.java
+│       └── META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
 ├── order/                        # Downstream service (tests rate limiting end-to-end)
 ├── keycloak-themes/              # Custom Keycloak UI themes
 ├── frontend/                     # Angular SPA
@@ -104,9 +108,15 @@ spring:
 
 ---
 
-### 🧱 `infra-core` — Centralized Infrastructure Library
+### 🧱 `infra-core` — Framework-Agnostic Infrastructure Library
 
-Shared Maven module consumed by all services. Provides production-grade Redis primitives.
+A pure Java library with **zero Spring Framework dependencies**. Provides production-grade Redis primitives usable in any Java context (standalone apps, non-Spring frameworks, plain Java projects, etc.).
+
+**Key Features:**
+- **Framework-agnostic POJOs**: All classes are plain Java objects without `@Component`, `@Service`, or `@Configuration` annotations
+- **InfraCoreFactory**: Manual instantiation pattern — pass your own `RedisTemplate` instances
+- **Reusable anywhere**: Can be published to Maven Central and used independently of Spring Boot
+- **Optional Spring integration**: Use `infra-spring-boot` module for auto-configuration in Spring Boot apps
 
 #### 🚦 Rate Limiter
 - Redis-backed, stateless — works identically across all service replicas
@@ -114,8 +124,10 @@ Shared Maven module consumed by all services. Provides production-grade Redis pr
 - Configurable per user/client/endpoint
 
 ```java
-boolean allowed = rateLimiter.isAllowed(clientId, limit, windowSeconds);
-if (!allowed) throw new RateLimitExceededException();
+// Standalone usage (factory pattern)
+InfraCoreFactory factory = new InfraCoreFactory(redisTemplate, stringTemplate);
+RateLimiterStore limiter = factory.createRateLimiterStore();
+boolean allowed = limiter.isAllowed(clientId, limit, windowSeconds);
 ```
 
 #### 🔁 Idempotency
@@ -123,7 +135,9 @@ if (!allowed) throw new RateLimitExceededException();
 - Returns cached responses on duplicate requests — safe for payment & order flows
 
 ```java
-idempotencyService.checkOrStore(idempotencyKey, () -> processOrder(request));
+// Standalone usage
+IdempotencyStore idempotency = factory.createIdempotencyStore();
+idempotency.checkOrStore(idempotencyKey, () -> processOrder(request));
 ```
 
 #### 📦 Stock Store (Lua-powered)
@@ -156,6 +170,33 @@ KeyBuilder.idempotency(requestId)            // → "idempotency:req:<id>"
 KeyBuilder.stock(productId)                  // → "stock:product:<id>"
 KeyBuilder.cache("order", orderId)           // → "cache:order:<id>"
 ```
+
+---
+
+### ⚙️ Spring Integration — `infra-spring-boot`
+
+Optional Spring Boot auto-configuration layer on top of `infra-core`. Automatically wires all components as Spring beans whenever `infra-core` is on the classpath.
+
+**What it provides:**
+- Auto-configuration of all `infra-core` stores (`RateLimiterStore`, `IdempotencyStore`, `CacheStore`, `StockStore`)
+- Spring Boot bean auto-discovery (no manual `@Import` or `@Configuration` needed)
+- Compatible with Spring Boot 3.x+
+
+**Usage in Spring Boot apps:**
+```java
+// Just inject — no manual bean definitions needed
+@Service
+public class OrderService {
+    public OrderService(RateLimiterStore limiter, IdempotencyStore idempotency) { 
+        this.limiter = limiter;
+        this.idempotency = idempotency;
+    }
+}
+```
+
+**For standalone / non-Spring Java projects** → Use `infra-core` directly with `InfraCoreFactory`.  
+**For Spring Boot applications** → Add `infra-spring-boot` to your classpath — all beans auto-wire.  
+**Publishing to Maven** → Publish only `infra-core` as a reusable library; `infra-spring-boot` is optional integration layer.
 
 ---
 
@@ -273,6 +314,10 @@ All service schemas are version-controlled via **Flyway** migrations.
 
 | Decision | Rationale |
 |---|---|
+| Two-module library design | `infra-core` is framework-agnostic (publishable to Maven Central); `infra-spring-boot` is optional Spring integration |
+| Framework-agnostic core | Plain Java POJOs enable usage in non-Spring contexts and reduce vendor lock-in |
+| Factory pattern over autowiring | `InfraCoreFactory` allows manual instantiation without reflecting on classpath or dependency injection |
+| Spring auto-configuration | `infra-spring-boot` auto-wires stores when present — zero config needed for Spring Boot apps |
 | Centralized `infra-core` | Avoids duplicating rate limiting / idempotency logic per service |
 | Lua scripts for stock ops | Atomic read-modify-write on Redis without distributed locks |
 | `StringRedisTemplate` for rate limiter | No serialization overhead — counters are plain strings |
@@ -281,6 +326,58 @@ All service schemas are version-controlled via **Flyway** migrations.
 | JWT validation at gateway only | Downstream services trust the gateway — no repeated token validation |
 | Flyway over manual SQL | Schema history is tracked, repeatable, and CI/CD-friendly |
 | Two Docker Compose layers | Infra and services can be restarted independently without teardown |
+
+---
+
+## 🏗️ Library Architecture
+
+The infrastructure is split into two distinct Maven modules for **maximum reusability** and **framework independence**:
+
+### Layer 1: Core Library (`infra-core`)
+- **Zero external frameworks** — only depends on Spring Data Redis (interfaces) and Jackson
+- Pure Java classes (POJOs) with no annotations
+- Entry point: `InfraCoreFactory` — accepts `RedisTemplate<String, Object>` and `StringRedisTemplate` instances
+- **Use case**: Standalone Java apps, non-Spring microservices, CLI tools, or publish to Maven Central as a reusable library
+
+```java
+// Instantiation in standalone context
+RedisConnectionFactory factory = new LettuceConnectionFactory();
+RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+redisTemplate.setConnectionFactory(factory);
+redisTemplate.afterPropertiesSet();
+
+StringRedisTemplate stringTemplate = new StringRedisTemplate(factory);
+
+InfraCoreFactory appFactory = new InfraCoreFactory(redisTemplate, stringTemplate);
+RateLimiterStore limiter = appFactory.createRateLimiterStore();
+```
+
+### Layer 2: Spring Integration (`infra-spring-boot`)
+- Optional auto-configuration layer — only add to classpath if using Spring Boot 3.x+
+- Provides Spring `@Configuration` class that auto-wires all `core` stores as beans
+- Spring Boot auto-discovery — zero manual bean definitions required
+- **Use case**: Spring Boot microservices, API Gateway, downstream services
+
+```xml
+<!-- In infra-spring-boot pom.xml -->
+<dependency>
+    <groupId>com.emi</groupId>
+    <artifactId>infra-core</artifactId>
+    <version>1.0.0</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-autoconfigure</artifactId>
+</dependency>
+```
+
+### Publication Strategy
+1. **Publish `infra-core` to Maven Central** — Pure Java library, no Spring coupling
+2. **Publish `infra-spring-boot` to Maven Central** — Optional Spring integration
+3. **Users can:**
+   - Use `infra-core` alone in non-Spring projects
+   - Use `infra-spring-boot` in Spring Boot apps for automatic bean wiring
+   - Both modules work independently — `infra-spring-boot` is purely optional
 
 ---
 

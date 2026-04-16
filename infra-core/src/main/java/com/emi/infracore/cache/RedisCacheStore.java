@@ -2,12 +2,10 @@ package com.emi.infracore.cache;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-@Service
 @RequiredArgsConstructor
 public class RedisCacheStore implements  CacheStore{
 
