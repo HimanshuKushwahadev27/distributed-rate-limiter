@@ -36,9 +36,9 @@
 
     <modules>
         <module>api-gateway</module>
+        <module>order</module>
         <module>infra-core</module>
         <module>infra-spring-boot</module>
-        <module>order</module>
     </modules>
 
 

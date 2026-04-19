@@ -2,11 +2,16 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.github.himanshukushwahadev27</groupId>
+    <artifactId>rate-limiter-parent</artifactId>
+    <version>1.0.0</version>
+  </parent>
   <groupId>io.github.himanshukushwahadev27</groupId>
   <artifactId>infra-spring-boot</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.0</version>
   <name>infra-spring-boot</name>
-  <description>Spring Boot auto-configuration for infra-core</description>
+  <description>Spring Boot auto-configuration for infra-core - optional integration layer providing automatic bean wiring</description>
   <url>https://github.com/HimanshuKushwahadev27/distributed-rate-limiter</url>
   <licenses>
     <license>
@@ -33,16 +38,16 @@
     <dependency>
       <groupId>io.github.himanshukushwahadev27</groupId>
       <artifactId>infra-core</artifactId>
-      <version>1.0.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-autoconfigure</artifactId>
-      <version>3.3.1</version>
+      <version>1.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-redis</artifactId>
+      <version>3.3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure</artifactId>
       <version>3.3.1</version>
     </dependency>
   </dependencies>
@@ -52,57 +57,15 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.11.0</version>
         <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <gpgArguments>
-            <arg>--pinentry-mode</arg>
-            <arg>loopback</arg>
-          </gpgArguments>
+          <source>21</source>
+          <target>21</target>
         </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.3.0</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.6.2</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <quiet>true</quiet>
-          <failOnError>false</failOnError>
-          <doclint>none</doclint>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.sonatype.central</groupId>
@@ -112,6 +75,7 @@
         <configuration>
           <publishingServerId>central</publishingServerId>
           <autoPublish>true</autoPublish>
+          <skipPublishing>false</skipPublishing>
         </configuration>
       </plugin>
       <plugin>

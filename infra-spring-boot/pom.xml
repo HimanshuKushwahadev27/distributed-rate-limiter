@@ -2,22 +2,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.github.himanshukushwahadev27</groupId>
+        <artifactId>rate-limiter-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
 
-    <!-- ✅ define groupId explicitly -->
-    <groupId>io.github.himanshukushwahadev27</groupId>
     <artifactId>infra-spring-boot</artifactId>
-    <version>1.0.1</version>
-
+    <version>1.0.0</version>
     <name>infra-spring-boot</name>
-    <description>Spring Boot auto-configuration for infra-core</description>
+    <description>Spring Boot auto-configuration for infra-core - optional integration layer providing automatic bean wiring</description>
     <url>https://github.com/HimanshuKushwahadev27/distributed-rate-limiter</url>
 
     <scm>
-        <connection>scm:git:https://github.com/HimanshuKushwahadev27/distributed-rate-limiter.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com:HimanshuKushwahadev27/distributed-rate-limiter.git</developerConnection>
-        <url>https://github.com/HimanshuKushwahadev27/distributed-rate-limiter</url>
+    <connection>scm:git:https://github.com/HimanshuKushwahadev27/distributed-rate-limiter.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:HimanshuKushwahadev27/distributed-rate-limiter.git</developerConnection>
+    <url>https://github.com/HimanshuKushwahadev27/distributed-rate-limiter</url>
     </scm>
 
     <licenses>
@@ -34,107 +35,61 @@
         </developer>
     </developers>
 
+
     <properties>
+            <gpg.skip>false</gpg.skip>
+
         <java.version>21</java.version>
-        <gpg.skip>false</gpg.skip>
     </properties>
 
     <dependencies>
-
-        <!-- Your core lib -->
+        <!-- Core infra library (no Spring) -->
         <dependency>
             <groupId>io.github.himanshukushwahadev27</groupId>
             <artifactId>infra-core</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.0</version>
         </dependency>
 
-        <!-- Spring Boot deps -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
-            <version>3.3.1</version>
-        </dependency>
-
+        <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
             <version>3.3.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>3.3.1</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-
-            <!-- Compiler (since parent removed) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
 
-           <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <gpgArguments>
-                        <arg>--pinentry-mode</arg>
-                        <arg>loopback</arg>
-                    </gpgArguments>
-                </configuration>
-            </plugin>
-
-            <!-- Sources -->
+            <!-- Enable source attachment -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.3.0</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
-            <!-- Javadoc -->
+            <!-- Enable javadoc attachment -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.6.2</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <quiet>true</quiet>
-                    <failOnError>false</failOnError>
-                    <doclint>none</doclint>
-                </configuration>
             </plugin>
 
-            <!-- Publish -->
-            <plugin>
+            <!-- Deploy to repository -->
+           <plugin>
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
                 <version>0.6.0</version>
@@ -142,28 +97,29 @@
                 <configuration>
                     <publishingServerId>central</publishingServerId>
                     <autoPublish>true</autoPublish>
+                    <skipPublishing>false</skipPublishing>
                 </configuration>
             </plugin>
-
-            <!-- Flatten -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+               <groupId>org.codehaus.mojo</groupId>  
                 <artifactId>flatten-maven-plugin</artifactId>
                 <version>1.5.0</version>
+
                 <executions>
                     <execution>
-                        <id>flatten</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>flatten</goal>
-                        </goals>
+                    <id>flatten</id>
+                    <phase>process-resources</phase>
+                    <goals>
+                        <goal>flatten</goal>
+                    </goals>
                     </execution>
                 </executions>
+
                 <configuration>
                     <flattenMode>resolveCiFriendliesOnly</flattenMode>
                 </configuration>
-            </plugin>
 
+            </plugin>
         </plugins>
     </build>
 
