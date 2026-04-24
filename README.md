@@ -2,6 +2,8 @@
 
 > A full-stack, production-inspired microservices platform featuring **centralized rate limiting**, **idempotency**, **atomic stock management**, **JWT-based auth via Keycloak**, **Flyway-managed schemas**, and **Docker-composed infrastructure** — all wired through a Spring Cloud API Gateway.
 
+> Rate limiter enforces 5 req/min per user per endpoint via sliding window; verified under 10 concurrent users with correct 429 enforcement on threshold breach
+
 ---
 
 ## 📦 Maven Dependencies
